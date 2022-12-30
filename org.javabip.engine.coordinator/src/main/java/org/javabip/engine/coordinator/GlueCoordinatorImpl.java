@@ -29,7 +29,6 @@ import org.javabip.api.*;
 import org.javabip.engine.api.*;
 import org.javabip.exceptions.BIPEngineException;
 import org.javabip.executor.ExecutorKernel;
-import org.javabip.executor.ExecutorKernelRV;
 import org.javabip.executor.TunellingExecutorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,9 +210,7 @@ public class GlueCoordinatorImpl implements GlueCoordinator, Runnable {
 		} else {
 
 			//final ExecutorKernel executor = new ExecutorKernel(component, id, useSpec);
-			final ExecutorKernel executor;
-			if (doRuntimeVerification) executor = new ExecutorKernelRV(component, id, useSpec);
-			else executor = new ExecutorKernel(component, id, useSpec);
+			final ExecutorKernel executor = new ExecutorKernel(component, id, useSpec);
 
 			OrchestratedExecutor executorActor;
 
