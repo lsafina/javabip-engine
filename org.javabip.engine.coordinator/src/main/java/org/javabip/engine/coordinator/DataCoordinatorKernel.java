@@ -1,13 +1,13 @@
 /*
  * Copyright 2012-2016 École polytechnique fédérale de Lausanne (EPFL), Switzerland
  * Copyright 2012-2016 Crossing-Tech SA, Switzerland
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,9 +34,9 @@ import java.util.Map.Entry;
 /**
  * DataCoordinatorKernel implements the DataCoordinator interface. It takes care of data exchange, and the rest of the
  * BIP engine functionality is performed via the BIP Coordinator.
- * 
+ *
  * DataCoordinator intercepts call register and inform from BIPExecutor.
- * 
+ *
  * @authors: Anastasia Mavridou, Alina Zolotukhina
  */
 public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, DataCoordinator {
@@ -108,7 +108,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Instantiates a new data coordinator implementation.
-	 * 
+	 *
 	 * @param glueCoordinator
 	 *            the BIP coordinator.
 	 * @param dataEncoder
@@ -161,7 +161,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Sends interactions-glue to the BIP Coordinator. Sends data-glue to the Data Encoder.
-	 * 
+	 *
 	 * @param glue
 	 *            the glue
 	 */
@@ -171,7 +171,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 		try {
 			/*
 			 * Send the information about the dataWires to the DataEncoder to create the d-variables BDD nodes.
-			 * 
+			 *
 			 * specifyDataGlue checks the validity of wires and throws an exception if necessary.
 			 */
 			Set<BDD> dataConstraints = dataEncoder.specifyDataGlue(dataWires);
@@ -233,27 +233,22 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 	}
 
 	/*
-	 * believe me, this way it is easier
-	 */
-	public synchronized BIPActor register(Object object, String id, boolean useSpec) {
-		return register(object, id, useSpec, false, false);
-	}
-
-	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.bip.api.BIPEngine#register(org.bip.api.BIPComponent, org.bip.api.Behaviour)
 	 */
-	public synchronized BIPActor register(Object object, String id, boolean useSpec, boolean doRuntimeVerification, boolean useVerCorsReport) {
+
+	public synchronized BIPActor register(Object object, String id, boolean useSpec) {
 		/*
 		 * The condition below checks whether the component has already been registered.
 		 */
+
 		BIPActor actor = null;
 		try {
 			if (object == null) {
 				throw new BIPEngineException("Registering a null component.");
 			}
-			actor = glueCoordinator.register(object, id, useSpec, doRuntimeVerification, useVerCorsReport);
+			actor = glueCoordinator.register(object, id, useSpec);
 
 			BIPComponent component = glueCoordinator.getComponentFromObject(object);
 			Behaviour behaviour = glueCoordinator.getBehaviourByComponent(component);
@@ -279,6 +274,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 			 * If this component type already exists in the hashtable, update the ArrayList of BIPComponents that
 			 * corresponds to this component type.
 			 */
+
 			if (typeInstancesMapping.containsKey(component.getType())) {
 				componentInstances.addAll(typeInstancesMapping.get(component.getType()));
 			}
@@ -298,7 +294,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.bip.api.BIPEngine#inform(org.bip.api.BIPComponent, java.lang.String, java.util.Set)
 	 */
 	public synchronized void inform(BIPComponent component, String currentState, Set<Port> disabledPorts) {
@@ -330,7 +326,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Send each disabled combination of each deciding Component directly to the Data Encoder.
-	 * 
+	 *
 	 * @param decidingComponent
 	 *            the component that has received data from other components and has decided upon the possible
 	 *            combinations based on data
@@ -412,7 +408,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 		/*
 		 * At this point we know that all the involved components are registered and the specified ports belong to
 		 * corresponding behaviours.
-		 * 
+		 *
 		 * Send each disabled combination of each deciding Component directly to the Data Encoder.
 		 */
 
@@ -457,11 +453,11 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 	/**
 	 * BDDBIPEngine informs the BIPCoordinator for the components (and their associated ports) that are part of the same
 	 * chosen interaction.
-	 * 
+	 *
 	 * Through this function all the components need to be notified. If they are participating in an interaction then
 	 * their port to be fired is sent to them through the execute function of the BIPExecutor. If they are not
 	 * participating in an interaction then null is sent to them.
-	 * 
+	 *
 	 * @param portGroupsToExecute
 	 *            the interactions to execute
 	 * @throws BIPEngineException
@@ -482,7 +478,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 	 * For each port which is neither enabled, nor disabled, for each data that the port needs, the method gets the data
 	 * from other components (based on data-wires), calls the checkEnabledness method of Executor and finally calls
 	 * informSpecific method with the port combinations which are disabled based on data.
-	 * 
+	 *
 	 * @param component
 	 *            component requiring data
 	 * @param currentState
@@ -589,7 +585,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Log in trace mode: the list of data values provided by one component to another.
-	 * 
+	 *
 	 * @param containerList
 	 *            the list of lists of data
 	 * @param component
@@ -608,7 +604,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 	/**
 	 * Helper functions to get ports about which the decision of enabledness depends on data (or other not known
 	 * conditions)
-	 * 
+	 *
 	 * @param component
 	 *            the component in question
 	 * @param currentState
@@ -644,7 +640,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Prepare ports.
-	 * 
+	 *
 	 * @param valuation
 	 *            the valuation representing engine decision.
 	 * @return the list of interactions
@@ -714,7 +710,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 	 */
 	/**
 	 * Merging sub interactions.
-	 * 
+	 *
 	 * @param chosenInteraction
 	 *            the interaction chosen by the engine.
 	 * @param portsExecuted
@@ -757,7 +753,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 	/**
 	 * Sets the data value in the Executor of a component which asks for it in order to execute the port askingData. The
 	 * data is provided through the port providingData of another component.
-	 * 
+	 *
 	 * @param askingData
 	 *            port that needs data for execution
 	 * @param providingData
@@ -830,7 +826,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Looks through all the wires and returns the name of the dataOut of a component providing the data required.
-	 * 
+	 *
 	 * @param providingPort
 	 *            the port providing the data
 	 * @param requiringComponentType
@@ -899,7 +895,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Helper function that returns the registered component instances that correspond to a component type.
-	 * 
+	 *
 	 * @param type
 	 *            the name of the component type
 	 * @return the BIP component instances
@@ -932,7 +928,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Helper function that given a component returns the corresponding behaviour as a Behaviour Object.
-	 * 
+	 *
 	 * @param component
 	 *            the BIP component
 	 * @return the behaviour by component
@@ -943,7 +939,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Helper function that returns the total number of ports of the registered components.
-	 * 
+	 *
 	 * @return the no ports
 	 */
 	public int getNoPorts() {
@@ -952,7 +948,7 @@ public class DataCoordinatorKernel implements BIPEngine, InteractionExecutor, Da
 
 	/**
 	 * Helper function that returns the total number of states of the registered components.
-	 * 
+	 *
 	 * @return the no states
 	 */
 	public int getNoStates() {
